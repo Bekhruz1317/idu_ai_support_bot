@@ -1,0 +1,8 @@
+python-telegram-bot==20.7
+python-dotenv==1.0.0
+# LLM
+google-genai>=0.3
+# Async DB / ORM
+sqlalchemy[asyncio]>=2.0
+aiosqlite
+alembic>=1.13
