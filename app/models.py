@@ -32,6 +32,7 @@ class Log(Base):
     message: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
     predicted_intent: Mapped[Optional[str]] = mapped_column(String, nullable=True)
     confidence: Mapped[Optional[float]] = mapped_column(Float, nullable=True)
+    response_time: Mapped[Optional[float]] = mapped_column(Float, nullable=True)
     timestamp: Mapped[datetime] = mapped_column(
         DateTime, server_default=func.current_timestamp(), nullable=False
     )

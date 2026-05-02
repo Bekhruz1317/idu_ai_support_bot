@@ -1,5 +1,6 @@
 import csv
 import logging
+import time
 from io import StringIO
 
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
@@ -105,7 +106,8 @@ async def stats_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         "📊 Bot Statistics:\n"
         f"Total Users: {stats['total_users']}\n"
         f"Total Messages: {stats['total_messages']}\n"
-        f"Most Common Intent: {stats['most_common_intent']}"
+        f"Most Common Intent: {stats['most_common_intent']}\n"
+        f"Average Response Time: {stats.get('avg_response_time', 0.0)}s"
     )
     await update.message.reply_text(msg)
 
@@ -140,13 +142,16 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
             await update.message.reply_text(_format_student(student))
         return
 
+    start_time = time.time()
     result = await ask_gemini(user_id=user_id, text=msg)
+    response_time = time.time() - start_time
 
     await log_message(
         user_id=user_id,
         message=msg,
         predicted_intent=result.get("intent", "other"),
         confidence=1.0,
+        response_time=response_time,
     )
 
     await update.message.reply_text(result["answer"])
@@ -176,13 +181,16 @@ async def handle_topic_callback(update: Update, context: ContextTypes.DEFAULT_TY
 
     prompt = f"Please give me detailed information about {topic} at IDU."
 
+    start_time = time.time()
     result = await ask_gemini(user_id=user_id, text=prompt)
+    response_time = time.time() - start_time
 
     await log_message(
         user_id=user_id,
         message=f"[button] {topic}",
         predicted_intent=result.get("intent", "other"),
         confidence=1.0,
+        response_time=response_time,
     )
 
     await query.message.reply_text(result["answer"])

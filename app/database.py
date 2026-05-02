@@ -67,7 +67,7 @@ async def insert_or_update_user(user_id: int, username: Optional[str]) -> None:
 
 
 async def log_message(
-    user_id: int, message: str, predicted_intent: str, confidence: float
+    user_id: int, message: str, predicted_intent: str, confidence: float, response_time: Optional[float] = None
 ) -> None:
     async with SessionLocal() as session:
         async with session.begin():
@@ -77,6 +77,7 @@ async def log_message(
                     message=message,
                     predicted_intent=predicted_intent,
                     confidence=confidence,
+                    response_time=response_time,
                 )
             )
 
@@ -117,8 +118,12 @@ async def get_stats() -> Dict[str, Any]:
             )
         ).first()
         most_common_intent = row[0] if row else "None"
+        avg_response_time = (
+            await session.execute(select(func.avg(Log.response_time)))
+        ).scalar_one() or 0.0
         return {
             "total_messages": total_messages,
             "total_users": total_users,
             "most_common_intent": most_common_intent,
+            "avg_response_time": round(avg_response_time, 2),
         }
