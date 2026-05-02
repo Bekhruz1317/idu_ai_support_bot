@@ -164,6 +164,9 @@ async def handle_topic_callback(update: Update, context: ContextTypes.DEFAULT_TY
     data = query.data or ""
     topic = data.split(":", 1)[1] if data.startswith("topic:") else "other"
 
+    topic_label = dict(TOPICS).get(topic, topic)
+    await query.message.reply_text(f"👉 You chose: {topic_label}")
+
     if topic == "info":
         context.user_data["awaiting_student_id"] = True
         await query.message.reply_text(
